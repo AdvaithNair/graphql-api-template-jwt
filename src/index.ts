@@ -1,5 +1,4 @@
 // Resolvers
-//import RegisterResolver from "./modules/user/RegisterResolver";
 import UserResolver from "./modules/user/UserResolver";
 
 // Secretive Files

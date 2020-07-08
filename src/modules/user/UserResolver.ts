@@ -9,11 +9,11 @@ import {
 import bcrypt from "bcryptjs";
 import User from "../../entity/User";
 import RegisterInput from "./register/RegisterInput";
-import { MyContext } from "src/types";
 import isAuth from "../middleware/isAuth";
-import sendConfirmationEmail from "../utils/confirmEmail";
+import sendEmail from "../utils/sendEmail";
 import createConfirmationURL from "../utils/confirmURL";
 import redis from "../../redis";
+import { MyContext, EmailType } from "../../types";
 
 @Resolver()
 export default class UserResolver {
@@ -65,7 +65,7 @@ export default class UserResolver {
     console.log("CONFIRMATION URL: " + confirmationURL);
 
     // Sends Confirmation Email
-    await sendConfirmationEmail(email, confirmationURL);
+    await sendEmail(email, confirmationURL, EmailType.ConfirmAccount);
 
     return user;
   }
@@ -150,6 +150,17 @@ export default class UserResolver {
     // Removes Token from Redis
     await redis.del(token);
 
+    return true;
+  }
+
+  // Forgot Password Send Email
+  @Mutation(() => Boolean, {
+    description: "Sends Email if User Forgot Password",
+    nullable: true
+  })
+  async forgotPassword(@Arg("email") email: string): Promise<boolean> {
+    //await sendEmail()
+    console.log(email);
     return true;
   }
 }
