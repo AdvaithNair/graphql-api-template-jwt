@@ -1,19 +1,13 @@
-// Resolvers
-import UserResolver from "./modules/user/UserResolver";
-
-// Secretive Files
 import { SESSION_SECRET, SESSION_AGE, FRONTEND_URL } from "./secrets";
-
-// Standard Imports
 import { ApolloServer } from "apollo-server-express";
 import express from "express";
 import { buildSchema } from "type-graphql";
 import { createConnection } from "typeorm";
-import "reflect-metadata";
 import session from "express-session";
 import connectRedis from "connect-redis";
 import redis from "./redis";
 import cors from "cors";
+import "reflect-metadata";
 
 // Localhost Port Number
 const PORT: number = 4000;
@@ -24,7 +18,7 @@ const main = async () => {
 
   // GraphQL Schema
   const schema = await buildSchema({
-    resolvers: [UserResolver]
+    resolvers: [__dirname + '/modules/**/*.ts']
   });
 
   // Initialize Apollo Server

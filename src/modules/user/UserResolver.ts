@@ -11,9 +11,11 @@ import User from "../../entity/User";
 import RegisterInput from "./register/RegisterInput";
 import isAuth from "../middleware/isAuth";
 import sendEmail from "../utils/sendEmail";
-import createConfirmationURL from "../utils/confirmURL";
+import createLimitedURL from "../utils/createLimitedURL";
 import redis from "../../redis";
 import { MyContext, EmailType } from "../../types";
+import { REDIS_PREFIXES } from "../../secrets";
+import ChangePasswordInput from "./changePassword/ChangePasswordInput";
 
 @Resolver()
 export default class UserResolver {
@@ -42,6 +44,7 @@ export default class UserResolver {
   }
 
   // Registers User
+  // NOTE: Adjust to Prehash Password when implementing with frontend
   @Mutation(() => User, { description: "Registers User in User Table" })
   async register(@Arg("data")
   {
@@ -50,7 +53,8 @@ export default class UserResolver {
     username
   }: RegisterInput): Promise<User> {
     // Hashes Password for Entry in User Table
-    const hashedPassword: string = await bcrypt.hash(password, 12);
+    const hashedPassword: string = await bcrypt.hash(password, 12); // Without Frontend
+    // const hashedPassword: string = password; // With Frontend (Uncomment)
 
     // Enters User into Table
     const user = await User.create({
@@ -60,9 +64,13 @@ export default class UserResolver {
     }).save();
 
     // Creates Confirmation URL
-    const confirmationURL: string = await createConfirmationURL(user.id);
+    const confirmationURL: string = await createLimitedURL(
+      user.id,
+      "/user/confirm/",
+      EmailType.ConfirmAccount
+    );
 
-    console.log("CONFIRMATION URL: " + confirmationURL);
+    // console.log("CONFIRMATION URL: " + confirmationURL);
 
     // Sends Confirmation Email
     await sendEmail(email, confirmationURL, EmailType.ConfirmAccount);
@@ -83,8 +91,8 @@ export default class UserResolver {
     // Finds User from User Table
     const user = await User.findOne({ where: { email } });
 
-    // Returns Null if User Not Found
-    if (!user) return null;
+    // Throws Error if User Not Found
+    if (!user) throw new Error("User Not Found");
 
     // Compares Password
     const valid: boolean = await bcrypt.compare(password, user.password);
@@ -114,8 +122,8 @@ export default class UserResolver {
     // Finds User from User Table
     const user = await User.findOne({ where: { username } });
 
-    // Returns Null if User Not Found
-    if (!user) return null;
+    // Throws Error if User Not Found
+    if (!user) throw new Error("User Not Found");
 
     // Compares Password
     const valid: boolean = await bcrypt.compare(password, user.password);
@@ -134,12 +142,11 @@ export default class UserResolver {
 
   // Confirms User
   @Mutation(() => Boolean, {
-    description: "Confirms User with URL Sent in Email",
-    nullable: true
+    description: "Confirms User with URL Sent in Email"
   })
   async confirmUser(@Arg("token") token: string): Promise<boolean> {
     // Retrieves Token from Redis
-    const userID = await redis.get(token);
+    const userID = await redis.get(REDIS_PREFIXES.CONFIRM + token);
 
     // Return False if ID Does Not Exist in Redis
     if (!userID) return false;
@@ -148,19 +155,66 @@ export default class UserResolver {
     await User.update({ id: parseInt(userID, 10) }, { confirmed: true });
 
     // Removes Token from Redis
-    await redis.del(token);
+    await redis.del(REDIS_PREFIXES.CONFIRM + token);
 
     return true;
   }
 
   // Forgot Password Send Email
   @Mutation(() => Boolean, {
-    description: "Sends Email if User Forgot Password",
-    nullable: true
+    description: "Sends Email if User Forgot Password"
   })
   async forgotPassword(@Arg("email") email: string): Promise<boolean> {
-    //await sendEmail()
-    console.log(email);
+    // Searches for User
+    const user = await User.findOne({ where: { email } });
+    if (!user) throw new Error("User Not Found");
+
+    // Creates Forgot Password URL
+    const forgotPasswordURL: string = await createLimitedURL(
+      user.id,
+      "/user/change-password/",
+      EmailType.ForgotPassword
+    );
+
+    // Sends Email
+    await sendEmail(email, forgotPasswordURL, EmailType.ForgotPassword);
+
     return true;
+  }
+
+  // Forgot Password Change Password with Token
+  // NOTE: Adjust to Prehash Password when implementing with frontend
+  @Mutation(() => User, {
+    description: "Changes Password with URL Sent in Forgot Password Email",
+    nullable: true
+  })
+  async changePassword(@Arg("data") {token, password}: ChangePasswordInput, @Ctx() context: MyContext): Promise<User | null> {
+    // Retreives Token from Redis
+    const userID = await redis.get(REDIS_PREFIXES.FORGOT + token);
+
+    // Throws Error if ID Does Not Exist in Redis
+    if (!userID) throw new Error("URL Expired. Try Again.");
+
+    // Gets User
+    const user = await User.findOne(userID);
+    if (!user) throw new Error("User Not Found");
+
+    // Compares Password (Confirms New Password) (Won't work if you hash password ahead of time)
+    const isSame: boolean = await bcrypt.compare(password, user.password);
+    if (isSame) throw new Error("New Password is the same as Current Password. Try Again.")
+
+    // Updates Password
+    const hashedPassword: string = await bcrypt.hash(password, 12); // Without Frontend
+    // const hashedPassword: string = password; // With Frontend (Uncomment)
+
+    await User.update({ id: parseInt(userID, 10)}, {password: hashedPassword})
+
+    // Removes Token from Redis
+    await redis.del(REDIS_PREFIXES.FORGOT + token);
+
+    // Creates New Session (Logs in User)
+    context.req.session!.userId = user.id;
+
+    return user;
   }
 }

@@ -15,13 +15,15 @@ const setMessage = (emailType: EmailType): EmailMessage => {
         subject: `Forgot ${PROJECT_NAME} Password`,
         text: "Change Password Here: "
       };
+    default:
+      return {
+        subject: `Unknown`,
+        text: "Unknown"
+      };
   }
-  return {
-    subject: `Unknown`,
-    text: "Unknown"
-  };
 };
 
+// Function to Send Email
 export default async function sendEmail(
   email: string,
   url: string,
