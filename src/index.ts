@@ -8,6 +8,7 @@ import connectRedis from "connect-redis";
 import redis from "./redis";
 import cors from "cors";
 import "reflect-metadata";
+import { graphqlUploadExpress } from "graphql-upload";
 
 // Localhost Port Number
 const PORT: number = 4000;
@@ -18,13 +19,14 @@ const main = async () => {
 
   // GraphQL Schema
   const schema = await buildSchema({
-    resolvers: [__dirname + '/modules/**/*.ts']
+    resolvers: [__dirname + "/modules/**/*.ts"]
   });
 
   // Initialize Apollo Server
   const apolloServer = new ApolloServer({
     schema,
-    context: ({ req }: any) => ({ req })
+    context: ({ req, res }: any) => ({ req, res }),
+    uploads: false
   });
 
   // Create Express Instance
@@ -50,6 +52,9 @@ const main = async () => {
       }
     })
   );
+
+  // Applies GraphQL Upload Middleware to App
+  app.use(graphqlUploadExpress({ maxFileSize: 10000000, maxFiles: 10 }));
 
   // Applies CORS to Express App
   app.use(

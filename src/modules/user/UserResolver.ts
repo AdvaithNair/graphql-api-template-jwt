@@ -13,9 +13,11 @@ import isAuth from "../middleware/isAuth";
 import sendEmail from "../utils/sendEmail";
 import createLimitedURL from "../utils/createLimitedURL";
 import redis from "../../redis";
-import { MyContext, EmailType } from "../../types";
+import { MyContext, EmailType, UploadImage } from "../../types";
 import { REDIS_PREFIXES } from "../../secrets";
 import ChangePasswordInput from "./changePassword/ChangePasswordInput";
+import { GraphQLUpload } from "graphql-upload";
+import { createWriteStream } from "fs";
 
 @Resolver()
 export default class UserResolver {
@@ -183,12 +185,14 @@ export default class UserResolver {
   }
 
   // Forgot Password Change Password with Token
-  // NOTE: Adjust to Prehash Password when implementing with frontend
   @Mutation(() => User, {
     description: "Changes Password with URL Sent in Forgot Password Email",
     nullable: true
   })
-  async changePassword(@Arg("data") {token, password}: ChangePasswordInput, @Ctx() context: MyContext): Promise<User | null> {
+  async changePassword(
+    @Arg("data") { token, password }: ChangePasswordInput,
+    @Ctx() context: MyContext
+  ): Promise<User | null> {
     // Retreives Token from Redis
     const userID = await redis.get(REDIS_PREFIXES.FORGOT + token);
 
@@ -199,15 +203,21 @@ export default class UserResolver {
     const user = await User.findOne(userID);
     if (!user) throw new Error("User Not Found");
 
-    // Compares Password (Confirms New Password) (Won't work if you hash password ahead of time)
+    // Compares Password (Confirms New Password)
     const isSame: boolean = await bcrypt.compare(password, user.password);
-    if (isSame) throw new Error("New Password is the same as Current Password. Try Again.")
+    if (isSame)
+      throw new Error(
+        "New Password is the same as Current Password. Try Again."
+      );
 
     // Updates Password
     const hashedPassword: string = await bcrypt.hash(password, 12); // Without Frontend
     // const hashedPassword: string = password; // With Frontend (Uncomment)
 
-    await User.update({ id: parseInt(userID, 10)}, {password: hashedPassword})
+    await User.update(
+      { id: parseInt(userID, 10) },
+      { password: hashedPassword }
+    );
 
     // Removes Token from Redis
     await redis.del(REDIS_PREFIXES.FORGOT + token);
@@ -216,5 +226,67 @@ export default class UserResolver {
     context.req.session!.userId = user.id;
 
     return user;
+  }
+
+  // Logs Out User
+  @Mutation(() => Boolean)
+  async logout(@Ctx() context: MyContext): Promise<boolean> {
+    // Destroys Session on Server
+    return new Promise((resolve, reject) =>
+      context.req.session!.destroy(err => {
+        if (err) {
+          console.log(err);
+          return reject(false);
+        }
+
+        // Clears Cookie from Browser
+        context.res.clearCookie("qid");
+        return resolve(true);
+      })
+    );
+  }
+
+  // Uploads Profile Picture to Server (Locally)
+  // NOTE: When Testing, remove Context
+  @Mutation(() => Boolean)
+  async addProfilePictureLocal(
+    @Arg("picture", () => GraphQLUpload)
+    { filename, createReadStream }: UploadImage,
+    @Ctx() context: MyContext
+  ): Promise<boolean> {
+    // UserID from Session
+    const UserID: number = context.req.session!.userId;
+
+    // Returns Null if User Does Not Exist
+    if (!UserID) throw new Error("Unauthorized.");
+
+    // Gets the User
+    const user = await User.findOne(UserID);
+    if (!user) throw new Error("User Not Found");
+
+    // Reduces Filename
+    const newFilename: string = user.username + '.' + filename.split('.')[1];
+    console.log(newFilename);
+  
+    return new Promise(async (resolve, reject) =>
+      createReadStream()
+        .pipe(
+          createWriteStream(__dirname + `/../../../images/${filename}`)
+        )
+        .on("finish", () => resolve(true))
+        .on("error", () => reject(false))
+    );
+  }
+
+  // Uploads Profile Picture to AWS S3
+  @Mutation(() => Boolean)
+  async addProfilePictureAWS() {
+    return false;
+  }
+
+  // Uploads Profile Picture to Firebase Storage Bucket
+  @Mutation(() => Boolean)
+  async addProfilePictureFirebase() {
+    return true;
   }
 }

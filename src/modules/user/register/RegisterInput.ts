@@ -1,4 +1,4 @@
-import { MaxLength, IsEmail, MinLength } from "class-validator";
+import { MaxLength, IsEmail, MinLength, IsLowercase } from "class-validator";
 import { InputType, Field } from "type-graphql";
 import DoesEmailExist from "./DoesEmailExist";
 import DoesUsernameExist from "./DoesUsernameExist";
@@ -6,6 +6,7 @@ import DoesUsernameExist from "./DoesUsernameExist";
 @InputType()
 export default class RegisterInput {
   @Field()
+  @IsLowercase({ message: "Username Must Be Lowercase" })
   @MinLength(1, { message: "Username Too Short" })
   @MaxLength(30, { message: "Username Too Long" })
   @DoesUsernameExist({ message: "Username Already In Use" })
