@@ -26,10 +26,3 @@ export enum EmailType {
   ConfirmAccount,
   ForgotPassword
 }
-
-// Redis Prefixes
-export interface RedisPrefixes {
-  CONFIRM: string;
-  FORGOT: string;
-  GENERAL: string;
-}

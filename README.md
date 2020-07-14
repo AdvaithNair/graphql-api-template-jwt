@@ -10,6 +10,9 @@ Features Include:
     * With Email
     * With Username
 * Forgot Password
+* Upload Images
+    * To Local Server
+    * To Google Cloud Storage (Google Cloud Platform)
 
 ## Technology Overview
 It utilizes the following technologies:

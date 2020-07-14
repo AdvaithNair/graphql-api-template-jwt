@@ -24,12 +24,10 @@ export default class ProfilePictureResolver {
   // Uploads Profile Picture to Server (Locally)
   // NOTE: When Testing, remove Context
   @Mutation(() => Boolean)
-  async addProfilePictureLocal(@Arg("picture", () => GraphQLUpload)
-  {
-    filename,
-    createReadStream
-  }: UploadImage): //@Ctx() context: MyContext
-  Promise<boolean> {
+  async addProfilePictureLocal(
+    @Arg("picture", () => GraphQLUpload)
+    { filename, createReadStream }: UploadImage //, @Ctx() context: MyContext)
+  ): Promise<boolean> {
     // Gets New Filename
     // const newname: string = await getFilename(context.req.session!.userId, filename)
     const newname: string = filename;
@@ -37,7 +35,9 @@ export default class ProfilePictureResolver {
     // Uploads Image
     return new Promise(async (resolve, reject) =>
       createReadStream()
-        .pipe(createWriteStream(__dirname + `/../../../images/${newname}`))
+        .pipe(
+          createWriteStream(__dirname + `/../../../images/profile/${newname}`)
+        )
         .on("finish", () => resolve(true))
         .on("error", () => reject(false))
     );
@@ -69,14 +69,12 @@ export default class ProfilePictureResolver {
     // const newname: string = await getFilename(context.req.session!.userId, filename)
     const newname: string = filename;
 
-    console.log(storageBucket.file(newname));
-
     // Uploads Image
     return new Promise(async (resolve, reject) =>
       createReadStream()
         .pipe(
           storageBucket
-            .file(newname)
+            .file(`profile/${newname}`)
             .createWriteStream({ resumable: false, gzip: true })
         )
         .on("finish", () => resolve(true))
