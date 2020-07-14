@@ -13,11 +13,9 @@ import isAuth from "../middleware/isAuth";
 import sendEmail from "../utils/sendEmail";
 import createLimitedURL from "../utils/createLimitedURL";
 import redis from "../../redis";
-import { MyContext, EmailType, UploadImage } from "../../types";
+import { MyContext, EmailType } from "../../types";
 import { REDIS_PREFIXES } from "../../secrets";
 import ChangePasswordInput from "./changePassword/ChangePasswordInput";
-import { GraphQLUpload } from "graphql-upload";
-import { createWriteStream } from "fs";
 
 @Resolver()
 export default class UserResolver {
@@ -244,49 +242,5 @@ export default class UserResolver {
         return resolve(true);
       })
     );
-  }
-
-  // Uploads Profile Picture to Server (Locally)
-  // NOTE: When Testing, remove Context
-  @Mutation(() => Boolean)
-  async addProfilePictureLocal(
-    @Arg("picture", () => GraphQLUpload)
-    { filename, createReadStream }: UploadImage,
-    @Ctx() context: MyContext
-  ): Promise<boolean> {
-    // UserID from Session
-    const UserID: number = context.req.session!.userId;
-
-    // Returns Null if User Does Not Exist
-    if (!UserID) throw new Error("Unauthorized.");
-
-    // Gets the User
-    const user = await User.findOne(UserID);
-    if (!user) throw new Error("User Not Found");
-
-    // Reduces Filename
-    const newFilename: string = user.username + '.' + filename.split('.')[1];
-    console.log(newFilename);
-  
-    return new Promise(async (resolve, reject) =>
-      createReadStream()
-        .pipe(
-          createWriteStream(__dirname + `/../../../images/${filename}`)
-        )
-        .on("finish", () => resolve(true))
-        .on("error", () => reject(false))
-    );
-  }
-
-  // Uploads Profile Picture to AWS S3
-  @Mutation(() => Boolean)
-  async addProfilePictureAWS() {
-    return false;
-  }
-
-  // Uploads Profile Picture to Firebase Storage Bucket
-  @Mutation(() => Boolean)
-  async addProfilePictureFirebase() {
-    return true;
   }
 }

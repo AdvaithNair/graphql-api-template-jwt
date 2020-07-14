@@ -64,6 +64,9 @@ const main = async () => {
     })
   );
 
+  // Allows Local Images to be Accessed
+  app.use(express.static('images'));
+
   // Applies Apollo Server Middleware to Express App
   apolloServer.applyMiddleware({ app });
 
