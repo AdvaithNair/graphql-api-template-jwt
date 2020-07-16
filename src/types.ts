@@ -26,3 +26,10 @@ export enum EmailType {
   ConfirmAccount,
   ForgotPassword
 }
+
+// Facebook OAuth Response Type
+export interface FacebookResponse {
+  name: string;
+  email: string;
+  picture: string;
+}

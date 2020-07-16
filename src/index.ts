@@ -1,4 +1,9 @@
-import { SESSION_SECRET, SESSION_AGE, FRONTEND_URL } from "./secrets";
+import {
+  SESSION_SECRET,
+  SESSION_AGE,
+  FRONTEND_URL,
+  FACEBOOK_OAUTH_SCOPES
+} from "./secrets";
 import { ApolloServer } from "apollo-server-express";
 import express from "express";
 import { buildSchema } from "type-graphql";
@@ -9,6 +14,8 @@ import redis from "./redis";
 import cors from "cors";
 import "reflect-metadata";
 import { graphqlUploadExpress } from "graphql-upload";
+import passport from "passport";
+import FacebookAuth from "./oauth/FacebookStrategy";
 
 // Localhost Port Number
 const PORT: number = 4000;
@@ -31,6 +38,39 @@ const main = async () => {
 
   // Create Express Instance
   const app = express();
+
+  // Initialize Facebook OAuth Strategy
+  passport.use(FacebookAuth);
+
+  passport.serializeUser(function(user, done) {
+    done(null, user);
+  });
+
+  passport.deserializeUser(function(user, done) {
+    done(null, user);
+  });
+
+  // Passport Middleware
+  app.use(passport.initialize());
+
+  // Facebook OAuth Routes
+  app.get(
+    "/auth/facebook",
+    passport.authenticate("facebook", { scope: FACEBOOK_OAUTH_SCOPES })
+  );
+  app.get("/hi", (_req, res) => {
+    res.send("nice");
+  });
+  app.get(
+    "/auth/facebook/callback",
+    passport.authenticate("facebook", {
+      successRedirect: "/graphql",
+      failureRedirect: "/hi"
+    }),
+    () => {
+      console.log("WORKED");
+    }
+  );
 
   // Create Redis Store
   const RedisStore = connectRedis(session);
@@ -65,7 +105,7 @@ const main = async () => {
   );
 
   // Allows Local Images to be Accessed
-  app.use(express.static('images'));
+  app.use(express.static("images"));
 
   // Applies Apollo Server Middleware to Express App
   apolloServer.applyMiddleware({ app });

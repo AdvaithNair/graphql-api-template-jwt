@@ -5,6 +5,8 @@
   "license": "MIT",
   "dependencies": {
     "@google-cloud/storage": "^5.1.2",
+    "@types/passport": "^1.0.4",
+    "@types/passport-facebook": "^2.1.10",
     "apollo-server-express": "^2.15.1",
     "bcryptjs": "^2.4.3",
     "class-validator": "^0.12.2",
@@ -16,6 +18,8 @@
     "graphql-upload": "^11.0.0",
     "ioredis": "^4.17.3",
     "nodemailer": "^6.4.10",
+    "passport": "^0.4.1",
+    "passport-facebook": "^3.0.0",
     "pg": "^8.2.1",
     "reflect-metadata": "^0.1.13",
     "type-graphql": "^1.0.0-rc.3",
