@@ -36,8 +36,8 @@ export default class UserResolver {
     // UserID
     const UserID: number = context.req.session!.userId;
 
-    // Returns Null if User Does Not Exist
-    if (!UserID) return undefined;
+    // Throw Error if User Does Not Exist
+    if (!UserID) throw new Error("User Does Not Exist")
 
     // Returns the User
     return User.findOne(UserID);
@@ -93,6 +93,9 @@ export default class UserResolver {
 
     // Throws Error if User Not Found
     if (!user) throw new Error("User Not Found");
+
+    // Throws Error if Password is Null
+    if (!user.password) throw new Error("Please Sign In With Listed Provider");
 
     // Compares Password
     const valid: boolean = await bcrypt.compare(password, user.password);

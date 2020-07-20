@@ -1,4 +1,5 @@
 import {
+  PORT,
   SESSION_SECRET,
   SESSION_AGE,
   FRONTEND_URL,
@@ -16,9 +17,7 @@ import "reflect-metadata";
 import { graphqlUploadExpress } from "graphql-upload";
 import passport from "passport";
 import FacebookAuth from "./oauth/FacebookStrategy";
-
-// Localhost Port Number
-const PORT: number = 4000;
+import createFacebookUser from "./oauth/CreateFacebookUser";
 
 const main = async () => {
   // Connect to DB
@@ -53,29 +52,10 @@ const main = async () => {
   // Passport Middleware
   app.use(passport.initialize());
 
-  // Facebook OAuth Routes
-  app.get(
-    "/auth/facebook",
-    passport.authenticate("facebook", { scope: FACEBOOK_OAUTH_SCOPES })
-  );
-  app.get("/hi", (_req, res) => {
-    res.send("nice");
-  });
-  app.get(
-    "/auth/facebook/callback",
-    passport.authenticate("facebook", {
-      successRedirect: "/graphql",
-      failureRedirect: "/hi"
-    }),
-    () => {
-      console.log("WORKED");
-    }
-  );
-
   // Create Redis Store
   const RedisStore = connectRedis(session);
 
-  // Applies Redis Middleware to Express App
+  // Applies Session and Redis Middleware to Express App
   app.use(
     session({
       store: new RedisStore({
@@ -92,6 +72,23 @@ const main = async () => {
       }
     })
   );
+
+  // Tester Route
+  app.get("/hi", (_req, res) => {
+    res.send("nice");
+  });
+
+  // Facebook OAuth Routes
+  app.get(
+    "/auth/facebook",
+    passport.authenticate("facebook", { scope: FACEBOOK_OAUTH_SCOPES })
+  );
+  app.get("/auth/facebook/callback", (req, res, next) => {
+    passport.authenticate('facebook', async (_err, user, _info) => {
+      req.session!.userId = await createFacebookUser(req, user);
+      res.redirect('/graphql');
+    })(req, res, next);
+  })
 
   // Applies GraphQL Upload Middleware to App
   app.use(graphqlUploadExpress({ maxFileSize: 10000000, maxFiles: 10 }));

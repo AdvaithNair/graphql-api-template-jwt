@@ -1,4 +1,4 @@
-import {Entity, PrimaryGeneratedColumn, Column, BaseEntity} from 'typeorm';
+import {Entity, Column, BaseEntity, PrimaryGeneratedColumn} from 'typeorm';
 import { ObjectType, Field, ID } from 'type-graphql';
 import { BUCKET_URL } from '../secrets';
 
@@ -21,7 +21,7 @@ export default class User extends BaseEntity {
     @Column("text", { default: `${BUCKET_URL}/Default.png`})
     imageURL: string;
 
-    @Column()
+    @Column({nullable: true})
     password: string;
 
     @Column("bool", { default: false })
