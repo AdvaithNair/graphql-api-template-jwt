@@ -25,7 +25,8 @@ It utilizes the following technologies:
   * Type GraphQL
   * TypeORM
   * Redis
-  * Express Sessions
+  * PassportJS
+  * Express Session
   * Nodemailer
   * UUID
 
@@ -38,9 +39,14 @@ All code is constructed using TypeScript.
 * [ExpressJS](https://expressjs.com/)
 * [Apollo Server Express](https://www.apollographql.com/docs/apollo-server/v1/servers/express/)
 * [PostgreSQL](https://www.postgresql.org/)
+* [BcryptJS](https://www.npmjs.com/package/bcryptjs)
 * [Type GraphQL](https://typegraphql.com/)
 * [TypeORM](https://typeorm.io/#/)
-* [Redis]()
+* [Redis](https://redis.io/)
+* [PassportJS](http://www.passportjs.org/)
+* [Express Session](https://github.com/expressjs/session)
+* [Nodemailer](https://nodemailer.com/about/)
+* [UUID](https://github.com/uuidjs/uuid)
 
 ### Commands
 
@@ -103,6 +109,8 @@ PostgreSQL runs on port 5432 by default. Change the database name in ormconfig.j
 * Redis Cache Operations and Use Cases
 * Creating Unique Limited Time URLs
 * Sending Emails in NodeJS
+* OAuth Flow with PassportJS
+    * Facebook OAuth
 
 ## Contributors
 
