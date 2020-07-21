@@ -6,11 +6,15 @@ I recommend installing and using Yarn prior to setting up this template.
 Features Include:
 * Register
     * Confirmation Email
+    * With Facebook
+    * With Google
 * Login
     * With Email
     * With Username
+    * With Facebook
+    * With Google
 * Forgot Password
-* Upload Images
+* Upload Images (Profile Picture)
     * To Local Server
     * To Google Cloud Storage (Google Cloud Platform)
 
@@ -111,6 +115,7 @@ PostgreSQL runs on port 5432 by default. Change the database name in ormconfig.j
 * Sending Emails in NodeJS
 * OAuth Flow with PassportJS
     * Facebook OAuth
+    * Google OAuth
 
 ## Contributors
 

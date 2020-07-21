@@ -17,7 +17,7 @@ import "reflect-metadata";
 import { graphqlUploadExpress } from "graphql-upload";
 import passport from "passport";
 import FacebookAuth from "./oauth/FacebookStrategy";
-import {createFacebookUser, createGoogleUser} from "./oauth/CreateUserOAuth";
+import { createFacebookUser, createGoogleUser } from "./oauth/CreateUserOAuth";
 import GoogleAuth from "./oauth/GoogleStrategy";
 
 const main = async () => {
@@ -107,7 +107,7 @@ const main = async () => {
   app.get("/auth/google/callback", (req, res, next) => {
     passport.authenticate("google", async (_err, user, _info) => {
       req.session!.userId = await createGoogleUser(req, user);
-      res.redirect("http://advaithnair.com");
+      res.redirect("/graphql");
     })(req, res, next);
   });
 

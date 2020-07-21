@@ -18,7 +18,7 @@ export default class User extends BaseEntity {
     email: string;
 
     @Field()
-    @Column("text", { default: `${BUCKET_URL}/Default.png`})
+    @Column("text", { default: `${BUCKET_URL}/profile/Default.png`})
     imageURL: string;
 
     @Column({nullable: true})
