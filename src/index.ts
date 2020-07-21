@@ -17,7 +17,8 @@ import "reflect-metadata";
 import { graphqlUploadExpress } from "graphql-upload";
 import passport from "passport";
 import FacebookAuth from "./oauth/FacebookStrategy";
-import createFacebookUser from "./oauth/CreateFacebookUser";
+import {createFacebookUser, createGoogleUser} from "./oauth/CreateUserOAuth";
+import GoogleAuth from "./oauth/GoogleStrategy";
 
 const main = async () => {
   // Connect to DB
@@ -41,10 +42,13 @@ const main = async () => {
   // Initialize Facebook OAuth Strategy
   passport.use(FacebookAuth);
 
+  // Initialize Google OAuth Strategy
+  passport.use(GoogleAuth);
+
+  // Adjusts Passport Settings
   passport.serializeUser(function(user, done) {
     done(null, user);
   });
-
   passport.deserializeUser(function(user, done) {
     done(null, user);
   });
@@ -84,11 +88,28 @@ const main = async () => {
     passport.authenticate("facebook", { scope: FACEBOOK_OAUTH_SCOPES })
   );
   app.get("/auth/facebook/callback", (req, res, next) => {
-    passport.authenticate('facebook', async (_err, user, _info) => {
+    passport.authenticate("facebook", async (_err, user, _info) => {
       req.session!.userId = await createFacebookUser(req, user);
-      res.redirect('/graphql');
+      res.redirect("/graphql");
     })(req, res, next);
-  })
+  });
+
+  // Google OAuth Routes
+  app.get(
+    "/auth/google",
+    passport.authenticate("google", {
+      scope: [
+        "https://www.googleapis.com/auth/userinfo.profile",
+        "https://www.googleapis.com/auth/userinfo.email"
+      ]
+    })
+  );
+  app.get("/auth/google/callback", (req, res, next) => {
+    passport.authenticate("google", async (_err, user, _info) => {
+      req.session!.userId = await createGoogleUser(req, user);
+      res.redirect("http://advaithnair.com");
+    })(req, res, next);
+  });
 
   // Applies GraphQL Upload Middleware to App
   app.use(graphqlUploadExpress({ maxFileSize: 10000000, maxFiles: 10 }));
