@@ -8,9 +8,13 @@ const GoogleAuth = new GoogleStrategy(
     callbackURL: `http://localhost:${PORT}/auth/google/callback`,
     passReqToCallback: true
   },
-  (request: any, _accessToken: string, _refreshToken: any, profile: any, done: any) => {
-    console.log("Request: " + request);
-    console.log(profile);
+  (
+    _request: any,
+    _accessToken: string,
+    _refreshToken: any,
+    profile: any,
+    done: any
+  ) => {
     return done(null, profile);
   }
 );

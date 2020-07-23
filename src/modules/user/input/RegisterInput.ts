@@ -1,7 +1,7 @@
 import { MaxLength, IsEmail, MinLength, IsLowercase } from "class-validator";
 import { InputType, Field } from "type-graphql";
-import DoesEmailExist from "./DoesEmailExist";
-import DoesUsernameExist from "./DoesUsernameExist";
+import DoesEmailExist from "./validation/DoesEmailExist";
+import DoesUsernameExist from "./validation/DoesUsernameExist";
 
 @InputType()
 export default class RegisterInput {

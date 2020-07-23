@@ -1,10 +1,4 @@
-import {
-  PORT,
-  SESSION_SECRET,
-  SESSION_AGE,
-  FRONTEND_URL,
-  FACEBOOK_OAUTH_SCOPES
-} from "./secrets";
+import { PORT, SESSION_SECRET, SESSION_AGE, FRONTEND_URL } from "./secrets";
 import { ApolloServer } from "apollo-server-express";
 import express from "express";
 import { buildSchema } from "type-graphql";
@@ -15,10 +9,8 @@ import redis from "./redis";
 import cors from "cors";
 import "reflect-metadata";
 import { graphqlUploadExpress } from "graphql-upload";
-import passport from "passport";
-import FacebookAuth from "./oauth/FacebookStrategy";
-import { createFacebookUser, createGoogleUser } from "./oauth/CreateUserOAuth";
-import GoogleAuth from "./oauth/GoogleStrategy";
+import passport from './passport';
+import auth from "./routes/auth";
 
 const main = async () => {
   // Connect to DB
@@ -38,20 +30,6 @@ const main = async () => {
 
   // Create Express Instance
   const app = express();
-
-  // Initialize Facebook OAuth Strategy
-  passport.use(FacebookAuth);
-
-  // Initialize Google OAuth Strategy
-  passport.use(GoogleAuth);
-
-  // Adjusts Passport Settings
-  passport.serializeUser(function(user, done) {
-    done(null, user);
-  });
-  passport.deserializeUser(function(user, done) {
-    done(null, user);
-  });
 
   // Passport Middleware
   app.use(passport.initialize());
@@ -77,39 +55,8 @@ const main = async () => {
     })
   );
 
-  // Tester Route
-  app.get("/hi", (_req, res) => {
-    res.send("nice");
-  });
-
-  // Facebook OAuth Routes
-  app.get(
-    "/auth/facebook",
-    passport.authenticate("facebook", { scope: FACEBOOK_OAUTH_SCOPES })
-  );
-  app.get("/auth/facebook/callback", (req, res, next) => {
-    passport.authenticate("facebook", async (_err, user, _info) => {
-      req.session!.userId = await createFacebookUser(req, user);
-      res.redirect("/graphql");
-    })(req, res, next);
-  });
-
-  // Google OAuth Routes
-  app.get(
-    "/auth/google",
-    passport.authenticate("google", {
-      scope: [
-        "https://www.googleapis.com/auth/userinfo.profile",
-        "https://www.googleapis.com/auth/userinfo.email"
-      ]
-    })
-  );
-  app.get("/auth/google/callback", (req, res, next) => {
-    passport.authenticate("google", async (_err, user, _info) => {
-      req.session!.userId = await createGoogleUser(req, user);
-      res.redirect("/graphql");
-    })(req, res, next);
-  });
+  // OAuth Routes
+  app.use("/auth", auth);
 
   // Applies GraphQL Upload Middleware to App
   app.use(graphqlUploadExpress({ maxFileSize: 10000000, maxFiles: 10 }));
