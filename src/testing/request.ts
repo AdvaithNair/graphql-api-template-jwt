@@ -1,4 +1,4 @@
-import { graphql } from "graphql";
+import { graphql, GraphQLSchema } from "graphql";
 import createSchema from "../utils/CreateSchema";
 import { Maybe } from "graphql/jsutils/Maybe";
 
@@ -7,14 +7,28 @@ interface Options {
   variableValues?: Maybe<{
     [key: string]: any;
   }>;
+  userId?: number;
 }
 
-const request = async ({ source, variableValues }: Options) => {
+let schema: GraphQLSchema;
+
+const graphqlRequest = async ({ source, variableValues, userId }: Options) => {
+  if (!schema) schema = await createSchema();
   return graphql({
-    schema: await createSchema(),
+    schema,
     source,
-    variableValues
+    variableValues,
+    contextValue: {
+      req: {
+        session: {
+          userId
+        }
+      },
+      res: {
+        clearCookie: jest.fn()
+      }
+    }
   });
 };
 
-export default request;
+export default graphqlRequest;
