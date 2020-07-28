@@ -1,7 +1,6 @@
 import { PORT, SESSION_SECRET, SESSION_AGE, FRONTEND_URL } from "./secrets";
 import { ApolloServer } from "apollo-server-express";
 import express from "express";
-import { buildSchema } from "type-graphql";
 import { createConnection } from "typeorm";
 import session from "express-session";
 import connectRedis from "connect-redis";
@@ -11,15 +10,14 @@ import "reflect-metadata";
 import { graphqlUploadExpress } from "graphql-upload";
 import passport from './passport';
 import auth from "./routes/auth";
+import createSchema from "./utils/CreateSchema";
 
 const main = async () => {
   // Connect to DB
   await createConnection();
 
   // GraphQL Schema
-  const schema = await buildSchema({
-    resolvers: [__dirname + "/modules/**/*.ts"]
-  });
+  const schema = await createSchema();
 
   // Initialize Apollo Server
   const apolloServer = new ApolloServer({
