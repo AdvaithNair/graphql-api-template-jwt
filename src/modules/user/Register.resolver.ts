@@ -2,16 +2,15 @@ import { Resolver, Mutation, Arg } from "type-graphql";
 import bcrypt from "bcryptjs";
 import User from "../../entity/User";
 import RegisterInput from "./input/RegisterInput";
-import sendEmail from "../utils/sendEmail";
-import createLimitedURL from "../utils/createLimitedURL";
+import sendEmail from "../utils/SendEmail";
+import createLimitedURL from "../utils/CreateLimitedURL";
 import redis from "../../redis";
 import { EmailType } from "../../types";
-import { REDIS_PREFIXES } from "../../secrets";
+import { REDIS_PREFIXES } from "../../constants";
 
 @Resolver()
 export default class RegisterResolver {
   // Registers User
-  // NOTE: Adjust to Prehash Password when implementing with frontend
   @Mutation(() => User, { description: "Registers User in User Table" })
   async register(@Arg("data")
   {
@@ -20,8 +19,7 @@ export default class RegisterResolver {
     username
   }: RegisterInput): Promise<User> {
     // Hashes Password for Entry in User Table
-    const hashedPassword: string = await bcrypt.hash(password, 12); // Without Frontend
-    // const hashedPassword: string = password; // With Frontend (Uncomment)
+    const hashedPassword: string = await bcrypt.hash(password, 12);
 
     // Enters User into Table
     const user = await User.create({
@@ -37,10 +35,30 @@ export default class RegisterResolver {
       EmailType.ConfirmAccount
     );
 
-    // console.log("CONFIRMATION URL: " + confirmationURL);
-
     // Sends Confirmation Email
     await sendEmail(email, confirmationURL, EmailType.ConfirmAccount);
+
+    return user;
+  }
+
+  // Registers User Without Confirmation
+  @Mutation(() => User, { description: "Registers User in User Table" })
+  async registerConfirmed(@Arg("data")
+  {
+    email,
+    password,
+    username
+  }: RegisterInput): Promise<User> {
+    // Hashes Password for Entry in User Table
+    const hashedPassword: string = await bcrypt.hash(password, 12);
+
+    // Enters User into Table
+    const user = await User.create({
+      email,
+      password: hashedPassword,
+      username,
+      confirmed: true
+    }).save();
 
     return user;
   }
@@ -54,7 +72,7 @@ export default class RegisterResolver {
     const userID = await redis.get(REDIS_PREFIXES.CONFIRM + token);
 
     // Return False if ID Does Not Exist in Redis
-    if (!userID) return false;
+    if (!userID) throw new Error("User Does Not Exist");
 
     // Updates Confirmed in Database
     await User.update({ id: parseInt(userID, 10) }, { confirmed: true });

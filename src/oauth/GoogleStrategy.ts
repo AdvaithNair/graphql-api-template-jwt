@@ -1,4 +1,5 @@
-import { GOOGLE_APP, PORT } from "../secrets";
+import { PORT } from "../constants";
+import { GOOGLE_APP } from "../secrets";
 const GoogleStrategy = require("passport-google-oauth2").Strategy;
 
 const GoogleAuth = new GoogleStrategy(

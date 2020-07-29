@@ -1,11 +1,11 @@
 import { Resolver, Mutation, Arg, Ctx } from "type-graphql";
 import bcrypt from "bcryptjs";
 import User from "../../entity/User";
-import sendEmail from "../utils/sendEmail";
-import createLimitedURL from "../utils/createLimitedURL";
+import sendEmail from "../utils/SendEmail";
+import createLimitedURL from "../utils/CreateLimitedURL";
 import redis from "../../redis";
 import { MyContext, EmailType } from "../../types";
-import { REDIS_PREFIXES } from "../../secrets";
+import { REDIS_PREFIXES } from "../../constants";
 import ChangePasswordInput from "./input/ChangePasswordInput";
 
 @Resolver()

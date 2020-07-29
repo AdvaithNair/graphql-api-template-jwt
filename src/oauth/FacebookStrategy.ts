@@ -1,4 +1,5 @@
-import { FACEBOOK_APP, FACEBOOK_OAUTH_FIELDS, PORT } from "../secrets";
+import { PORT } from "../constants";
+import { FACEBOOK_APP, FACEBOOK_OAUTH_FIELDS } from "../secrets";
 const FacebookStrategy = require("passport-facebook");
 
 const FacebookAuth = new FacebookStrategy(

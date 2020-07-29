@@ -1,5 +1,6 @@
 import nodemailer from "nodemailer";
-import { SENDER_EMAIL, PROJECT_NAME } from "../../secrets";
+import { PROJECT_NAME } from "../../constants";
+import { SENDER_EMAIL } from "../../secrets";
 import { EmailType, EmailMessage } from "../../types";
 
 // Determines Message Depending on Email Type

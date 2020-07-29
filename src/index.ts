@@ -1,4 +1,5 @@
-import { PORT, SESSION_SECRET, SESSION_AGE, FRONTEND_URL } from "./secrets";
+import { SESSION_SECRET, FRONTEND_URL } from "./secrets";
+import {PORT, SESSION_AGE} from "./constants";
 import { ApolloServer } from "apollo-server-express";
 import express from "express";
 import { createConnection } from "typeorm";

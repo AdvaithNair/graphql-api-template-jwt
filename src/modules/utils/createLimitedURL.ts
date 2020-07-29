@@ -1,6 +1,7 @@
 import { v4 } from "uuid";
 import redis from "../../redis";
-import { FRONTEND_URL, REDIS_PREFIXES } from "../../secrets";
+import { FRONTEND_URL } from "../../secrets";
+import { REDIS_PREFIXES } from "../../constants";
 import { EmailType } from "../../types";
 
 const URL_EXPIRATION: number = 60 * 60 * 24; // Expires in 1 Day
