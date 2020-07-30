@@ -8,5 +8,5 @@
   "database": "example_db",
   "synchronize": true,
   "logging": true,
-  "entities": ["src/entity/*.*"]
+  "entities": ["src/entities/*.*"]
 }

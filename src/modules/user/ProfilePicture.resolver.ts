@@ -1,5 +1,5 @@
 import { Resolver, Mutation, Arg } from "type-graphql";
-//import User from "../../entity/User";
+//import User from "../../entities/User";
 import { UploadImage } from "../../types";
 import { GraphQLUpload } from "graphql-upload";
 import { createWriteStream } from "fs";

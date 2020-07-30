@@ -1,4 +1,4 @@
-import User from "../entity/User";
+import User from "../entities/User";
 import { v4 } from "uuid";
 import { Request } from "express";
 

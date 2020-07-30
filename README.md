@@ -17,6 +17,8 @@ Features Include:
 * Upload Images (Profile Picture)
     * To Local Server
     * To Google Cloud Storage (Google Cloud Platform)
+* Testing
+    * Included Jest Testing for Resolvers
 
 ## Technology Overview
 It utilizes the following technologies:
@@ -94,11 +96,15 @@ PostgreSQL runs on port 5432 by default. Change the database name in ormconfig.j
 ## Directory
 
 * **src** - primary TS files
-  * **entity** - TypeORM Entities
+  * **entities** - TypeORM Entities
   * **modules** - Type GraphQL Resolvers and Modules
-    * **middleware** - Authentication Middlewares
-    * **user** - User Resolver
+    * **middleware** - authentication middlewares
+    * **user** - user-related resolvers
     * **utils** - utilities to handle emails
+  * **oauth** - PassportJS OAuth strategies
+  * **routes** - express routing for OAuth
+  * **testing** - code required to run tests for resolvers
+  * **utils** - utilities for building schemas
   * *index.ts* - main file for GraphQL API
   * *redis.ts* - initialization for Redis cache 
     
@@ -113,9 +119,11 @@ PostgreSQL runs on port 5432 by default. Change the database name in ormconfig.j
 * Redis Cache Operations and Use Cases
 * Creating Unique Limited Time URLs
 * Sending Emails in NodeJS
+* Cleaner routing with ExpressJS
 * OAuth Flow with PassportJS
     * Facebook OAuth
     * Google OAuth
+* Testing Resolvers for Better Code Practices
 
 ## Contributors
 

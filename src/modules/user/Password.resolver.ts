@@ -1,6 +1,6 @@
 import { Resolver, Mutation, Arg, Ctx } from "type-graphql";
 import bcrypt from "bcryptjs";
-import User from "../../entity/User";
+import User from "../../entities/User";
 import sendEmail from "../utils/SendEmail";
 import createLimitedURL from "../utils/CreateLimitedURL";
 import redis from "../../redis";

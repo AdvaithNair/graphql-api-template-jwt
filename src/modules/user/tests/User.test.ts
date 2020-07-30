@@ -1,7 +1,7 @@
 import faker from "faker";
 import graphqlRequest from "../../../testing/request";
-import User from "../../../entity/User";
-import runTest from "../../utils/TestFramework";
+import User from "../../../entities/User";
+import runTest from "../../../testing/TestFramework";
 
 // User Test Query
 const userQuery: string = `

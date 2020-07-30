@@ -1,8 +1,8 @@
 import faker from "faker";
 import graphqlRequest from "../../../testing/request";
 import RegisterInput from "../input/RegisterInput";
-import User from "../../../entity/User";
-import runTest from "../../utils/TestFramework";
+import User from "../../../entities/User";
+import runTest from "../../../testing/TestFramework";
 
 // Register Test Mutation
 const registerMutation: string = `
@@ -39,8 +39,6 @@ const registerTest = (action: string) => {
         source: action,
         variableValues: registerVariables
       });
-
-      console.log(response);
 
       // Verifies if Username and Email match
       expect(response).toMatchObject({

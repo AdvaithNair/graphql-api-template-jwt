@@ -1,5 +1,5 @@
 import { Connection } from "typeorm";
-import testConnection from "../../testing/TestConnect";
+import testConnection from "./TestConnect";
 
 const runTest = (test: () => void) => {
   let dbConnection: Connection;

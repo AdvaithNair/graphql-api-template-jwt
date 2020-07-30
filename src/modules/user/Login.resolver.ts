@@ -1,6 +1,6 @@
 import { Resolver, Mutation, Arg, Ctx } from "type-graphql";
 import bcrypt from "bcryptjs";
-import User from "../../entity/User";
+import User from "../../entities/User";
 import { MyContext } from "../../types";
 
 @Resolver()

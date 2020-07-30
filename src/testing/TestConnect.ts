@@ -12,7 +12,7 @@ const testConnection = (toDrop: boolean = false) => {
     database: TEST_DB,
     synchronize: toDrop,
     dropSchema: toDrop,
-    entities: [__dirname + "/../entity/*.*"]
+    entities: [__dirname + "/../entities/*.*"]
   });
 };
 

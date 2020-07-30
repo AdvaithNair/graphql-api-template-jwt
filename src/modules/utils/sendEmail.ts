@@ -47,8 +47,8 @@ export default async function sendEmail(
   // Sets Message
   const message: EmailMessage = setMessage(emailType);
 
-  // Send Email using Transporter
-  const info = await transporter.sendMail({
+  // Send Email using Transporter (set this to const info to debug)
+  await transporter.sendMail({
     from: SENDER_EMAIL,
     to: email,
     subject: message.subject,
@@ -57,8 +57,8 @@ export default async function sendEmail(
   });
 
   // Logs Message ID
-  console.log("Message sent: %s", info.messageId);
+  // console.log("Message sent: %s", info.messageId);
 
   // Preview Email
-  console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
+  // console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
 }
