@@ -41,7 +41,11 @@ mutation LoginUsername($username: String!, $password: String!) {
 `;
 
 // Register Test
-const registerTest = (register: string, loginEmail: string, loginUsername: string) => {
+const registerTest = (
+  register: string,
+  loginEmail: string,
+  loginUsername: string
+) => {
   // Creates User
   const username: string = (faker.name.firstName() + faker.name.lastName())
     .toLowerCase()
@@ -108,8 +112,6 @@ const registerTest = (register: string, loginEmail: string, loginUsername: strin
           }
         }
       });
-
-      
     });
 
     it("Login User with Username", async () => {
@@ -138,4 +140,6 @@ const registerTest = (register: string, loginEmail: string, loginUsername: strin
   });
 };
 
-runTest(() => registerTest(registerMutation, loginEmailMutation, loginUsernameMutation));
+runTest(() =>
+  registerTest(registerMutation, loginEmailMutation, loginUsernameMutation)
+);

@@ -16,7 +16,7 @@ import { GCP_STORAGE } from "../../secrets";
   if (!user) throw new Error("User Not Found");
 
   // Reduces Filename
-  return user.username + "." + filename.split(".")[1];
+  return user.username + "." + filename.split(".").pop();
 };*/
 
 @Resolver()
