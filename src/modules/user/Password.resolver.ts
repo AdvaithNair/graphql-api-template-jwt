@@ -5,7 +5,7 @@ import sendEmail from "../utils/SendEmail";
 import createLimitedURL from "../utils/CreateLimitedURL";
 import redis from "../../redis";
 import { MyContext, EmailType } from "../../types";
-import { REDIS_PREFIXES } from "../../constants";
+import { REDIS_PREFIXES, ERROR_MESSAGES } from "../../constants";
 import ChangePasswordInput from "./input/ChangePasswordInput";
 
 @Resolver()
@@ -17,7 +17,7 @@ export default class PasswordResolver {
   async forgotPassword(@Arg("email") email: string): Promise<boolean> {
     // Searches for User
     const user = await User.findOne({ where: { email } });
-    if (!user) throw new Error("User Not Found");
+    if (!user) throw new Error(ERROR_MESSAGES.USER);
 
     // Creates Forgot Password URL
     const forgotPasswordURL: string = await createLimitedURL(
@@ -45,18 +45,15 @@ export default class PasswordResolver {
     const userID = await redis.get(REDIS_PREFIXES.FORGOT + token);
 
     // Throws Error if ID Does Not Exist in Redis
-    if (!userID) throw new Error("URL Expired. Try Again.");
+    if (!userID) throw new Error(ERROR_MESSAGES.PASSWORD_URL_EXPIRED);
 
     // Gets User
     const user = await User.findOne(userID);
-    if (!user) throw new Error("User Not Found");
+    if (!user) throw new Error(ERROR_MESSAGES.USER);
 
     // Compares Password (Confirms New Password)
     const isSame: boolean = await bcrypt.compare(password, user.password);
-    if (isSame)
-      throw new Error(
-        "New Password is the same as Current Password. Try Again."
-      );
+    if (isSame) throw new Error(ERROR_MESSAGES.NEW_PASSWORD_IS_SAME);
 
     // Updates Password
     const hashedPassword: string = await bcrypt.hash(password, 12); // Without Frontend

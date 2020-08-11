@@ -2,8 +2,9 @@ import {
   Resolver, Mutation, Arg, Ctx
 } from "type-graphql";
 import User from "../../entities/User";
-import { MyContext } from "src/types";
+import { MyContext } from "../../types";
 import bcrypt from 'bcryptjs';
+import { ERROR_MESSAGES } from "../../constants";
 
 
 @Resolver()
@@ -17,10 +18,10 @@ export default class UserResolver {
     const user = await User.findOne({ where: { id: context.req.session!.userId } });
 
     // Throws Error if User Not Found
-    if (!user) throw new Error("User Not Found");
+    if (!user) throw new Error(ERROR_MESSAGES.USER);
 
     // Throws Error if Password Already Exists
-    if (user.password) throw new Error("Password Already Exists");
+    if (user.password) throw new Error(ERROR_MESSAGES.PASSWORD_EXISTS);
 
     // Hashes Password
     const hashedPassword: string = await bcrypt.hash(password, 12);
@@ -41,7 +42,7 @@ export default class UserResolver {
     const user = await User.findOne({ where: { id: context.req.session!.userId } });
 
     // Throws Error if User Not Found
-    if (!user) throw new Error("User Not Found");
+    if (!user) throw new Error(ERROR_MESSAGES.USER);
 
     // Saves New Username
     user.username = username;

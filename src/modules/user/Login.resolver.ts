@@ -2,6 +2,30 @@ import { Resolver, Mutation, Arg, Ctx } from "type-graphql";
 import bcrypt from "bcryptjs";
 import User from "../../entities/User";
 import { MyContext } from "../../types";
+import { ERROR_MESSAGES } from "../../constants";
+
+// Code to validate a user, given a password and the context (for cookie management)
+const validateUser = async (user: User | undefined, password: string, context: MyContext) => {
+  // Throws Error if User Not Found
+  if (!user) throw new Error(ERROR_MESSAGES.USER);
+
+  // Throws Error if Password is Null (OAuth User)
+  if (!user.password) throw new Error(ERROR_MESSAGES.OAUTH);
+
+  // Compares Password
+  const valid: boolean = await bcrypt.compare(password, user.password);
+
+  // Throws Error if Password is Invalid
+  if (!valid) throw new Error(ERROR_MESSAGES.USER);
+
+  // Throws Error if Email Not Confirmed
+  if (!user.confirmed) throw new Error(ERROR_MESSAGES.NOT_CONFIRMED);
+
+  // Creates New Session
+  context.req.session!.userId = user.id;
+
+  return user;
+}
 
 @Resolver()
 export default class LoginResolver {
@@ -18,25 +42,7 @@ export default class LoginResolver {
     // Finds User from User Table
     const user = await User.findOne({ where: { email } });
 
-    // Throws Error if User Not Found
-    if (!user) throw new Error("User Not Found");
-
-    // Throws Error if Password is Null
-    if (!user.password) throw new Error("Please Sign In With Listed Provider");
-
-    // Compares Password
-    const valid: boolean = await bcrypt.compare(password, user.password);
-
-    // Throws Error if Password is Invalid
-    if (!valid) throw new Error("Invalid Password");
-
-    // Throws Error if Email Not Confirmed
-    if (!user.confirmed) throw new Error("Email Not Confirmed");
-
-    // Creates New Session
-    context.req.session!.userId = user.id;
-
-    return user;
+    return await validateUser(user, password, context);
   }
 
   // Logs In User with Username
@@ -52,21 +58,6 @@ export default class LoginResolver {
     // Finds User from User Table
     const user = await User.findOne({ where: { username } });
 
-    // Throws Error if User Not Found
-    if (!user) throw new Error("User Not Found");
-
-    // Compares Password
-    const valid: boolean = await bcrypt.compare(password, user.password);
-
-    // Throws Error if Password is Invalid
-    if (!valid) throw new Error("Invalid Password");
-
-    // Throws Error if Email Not Confirmed
-    if (!user.confirmed) throw new Error("Email Not Confirmed");
-
-    // Creates New Session
-    context.req.session!.userId = user.id;
-
-    return user;
+    return await validateUser(user, password, context);
   }
 }

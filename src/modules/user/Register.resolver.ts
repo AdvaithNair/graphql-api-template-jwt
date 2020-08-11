@@ -6,7 +6,7 @@ import sendEmail from "../utils/SendEmail";
 import createLimitedURL from "../utils/CreateLimitedURL";
 import redis from "../../redis";
 import { EmailType } from "../../types";
-import { REDIS_PREFIXES } from "../../constants";
+import { REDIS_PREFIXES, ERROR_MESSAGES } from "../../constants";
 
 @Resolver()
 export default class RegisterResolver {
@@ -72,7 +72,7 @@ export default class RegisterResolver {
     const userID = await redis.get(REDIS_PREFIXES.CONFIRM + token);
 
     // Return False if ID Does Not Exist in Redis
-    if (!userID) throw new Error("User Does Not Exist");
+    if (!userID) throw new Error(ERROR_MESSAGES.USER);
 
     // Updates Confirmed in Database
     await User.update({ id: parseInt(userID, 10) }, { confirmed: true });

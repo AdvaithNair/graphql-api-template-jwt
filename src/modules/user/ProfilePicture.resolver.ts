@@ -1,19 +1,22 @@
 import { Resolver, Mutation, Arg } from "type-graphql";
-//import User from "../../entities/User";
 import { UploadImage } from "../../types";
 import { GraphQLUpload } from "graphql-upload";
 import { createWriteStream } from "fs";
 import { Storage } from "@google-cloud/storage";
 import path from "path";
 import { GCP_STORAGE } from "../../secrets";
+//import { ERROR_MESSAGES } from "../../constants";
+//import User from "../../entities/User";
+
+
 
 /*const getFilename = async (UserID: number, filename: string): Promise<string> => {
   // Returns Null if User Does Not Exist
-  if (!UserID) throw new Error("Unauthorized.");
+  if (!UserID) throw new Error(ERROR_MESSAGES.UNAUTHORIZED);
 
   // Gets the User
   const user = await User.findOne(UserID);
-  if (!user) throw new Error("User Not Found");
+  if (!user) throw new Error(ERROR_MESSAGES.USER);
 
   // Reduces Filename
   return user.username + "." + filename.split(".").pop();

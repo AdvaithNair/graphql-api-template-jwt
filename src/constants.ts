@@ -13,3 +13,15 @@ export enum REDIS_PREFIXES {
   FORGOT = "Forgot-Password:",
   GENERAL = "General:"
 }
+
+// Error Messages
+export enum ERROR_MESSAGES {
+  GENERAL = "Error",
+  UNAUTHORIZED = 'Unauthorized.',
+  USER = "Invalid Credentials",
+  OAUTH = "Please Sign In With Listed Provider",
+  NOT_CONFIRMED = "Email Not Confirmed",
+  PASSWORD_EXISTS = "Password Already Exists",
+  PASSWORD_URL_EXPIRED = "URL Expired. Try Again.",
+  NEW_PASSWORD_IS_SAME = "New Password is the same as Current Password. Try Again."
+}
