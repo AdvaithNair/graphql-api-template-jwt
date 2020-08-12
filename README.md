@@ -1,4 +1,4 @@
-# GraphQL API Template
+# GraphQL API Template (JWT)
 
 GraphQL API Boilerplate Template featuring Full Auth System, written in Typescript.
 I recommend installing and using Yarn prior to setting up this template.

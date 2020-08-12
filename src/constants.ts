@@ -25,3 +25,10 @@ export enum ERROR_MESSAGES {
   PASSWORD_URL_EXPIRED = "URL Expired. Try Again.",
   NEW_PASSWORD_IS_SAME = "New Password is the same as Current Password. Try Again."
 }
+
+// User Roles
+export enum USER_ROLES {
+  OWNER,
+  ADMIN,
+  USER
+}

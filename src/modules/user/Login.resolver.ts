@@ -1,11 +1,16 @@
 import { Resolver, Mutation, Arg, Ctx } from "type-graphql";
 import bcrypt from "bcryptjs";
+import { sign } from "jsonwebtoken";
 import User from "../../entities/User";
-import { MyContext } from "../../types";
+import { MyContext, AuthTokens } from "../../types";
 import { ERROR_MESSAGES } from "../../constants";
+import { JWT_SECRETS, REFRESH_EXP, ACCESS_EXP } from "../../secrets";
 
 // Code to validate a user, given a password and the context (for cookie management)
-const validateUser = async (user: User | undefined, password: string, context: MyContext) => {
+const validateUser = async (
+  user: User | undefined,
+  password: string
+): Promise<AuthTokens> => {
   // Throws Error if User Not Found
   if (!user) throw new Error(ERROR_MESSAGES.USER);
 
@@ -21,11 +26,48 @@ const validateUser = async (user: User | undefined, password: string, context: M
   // Throws Error if Email Not Confirmed
   if (!user.confirmed) throw new Error(ERROR_MESSAGES.NOT_CONFIRMED);
 
-  // Creates New Session
-  context.req.session!.userId = user.id;
+  // Creates New Tokens
+  const refreshToken: string = sign(
+    { userID: user.id, count: user.count },
+    JWT_SECRETS.REFRESH,
+    {
+      expiresIn: JWT_SECRETS.REFRESH_EXP
+    }
+  );
+  const accessToken: string = sign(
+    { userID: user.id, role: user.role },
+    JWT_SECRETS.ACCESS,
+    {
+      expiresIn: JWT_SECRETS.ACCESS_EXP
+    }
+  );
+
+  // Sets Cookie
+  return {
+    refresh: refreshToken,
+    access: accessToken
+  };
+};
+
+// Handles Web Login
+const handleWeb = async (
+  user: User | undefined,
+  password: string,
+  context: MyContext
+): Promise<User | undefined> => {
+  const tokens: AuthTokens = await validateUser(user, password);
+
+  context.res.cookie("refresh-token", tokens.refresh, {
+    expires: REFRESH_EXP,
+    httpOnly: true
+  });
+  context.res.cookie("access-token", tokens.access, {
+    expires: ACCESS_EXP,
+    httpOnly: true
+  });
 
   return user;
-}
+};
 
 @Resolver()
 export default class LoginResolver {
@@ -38,11 +80,11 @@ export default class LoginResolver {
     @Arg("email") email: string,
     @Arg("password") password: string,
     @Ctx() context: MyContext
-  ): Promise<User | null> {
+  ): Promise<User | undefined> {
     // Finds User from User Table
     const user = await User.findOne({ where: { email } });
 
-    return await validateUser(user, password, context);
+    return handleWeb(user, password, context);
   }
 
   // Logs In User with Username
@@ -54,10 +96,10 @@ export default class LoginResolver {
     @Arg("username") username: string,
     @Arg("password") password: string,
     @Ctx() context: MyContext
-  ): Promise<User | null> {
+  ): Promise<User | undefined> {
     // Finds User from User Table
     const user = await User.findOne({ where: { username } });
 
-    return await validateUser(user, password, context);
+    return handleWeb(user, password, context);
   }
 }

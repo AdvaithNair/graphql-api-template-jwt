@@ -1,11 +1,8 @@
-import { SESSION_SECRET, FRONTEND_URL } from "./secrets";
-import { PORT, SESSION_AGE } from "./constants";
+import { FRONTEND_URL } from "./secrets";
+import { PORT } from "./constants";
 import { ApolloServer } from "apollo-server-express";
 import express from "express";
 import { createConnection } from "typeorm";
-import session from "express-session";
-import connectRedis from "connect-redis";
-import redis from "./redis";
 import cors from "cors";
 import "reflect-metadata";
 import { graphqlUploadExpress } from "graphql-upload";
@@ -32,27 +29,6 @@ const main = async () => {
 
   // Passport Middleware
   app.use(passport.initialize());
-
-  // Create Redis Store
-  const RedisStore = connectRedis(session);
-
-  // Applies Session and Redis Middleware to Express App
-  app.use(
-    session({
-      store: new RedisStore({
-        client: redis as any
-      }),
-      name: "qid",
-      secret: SESSION_SECRET,
-      resave: false,
-      saveUninitialized: false,
-      cookie: {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        maxAge: SESSION_AGE
-      }
-    })
-  );
 
   // Redirect Root to GraphQL
   app.get("/", (_req, res) => res.redirect("/graphql"));

@@ -33,3 +33,9 @@ export interface FacebookResponse {
   email: string;
   picture: string;
 }
+
+// Auth Tokens
+export interface AuthTokens {
+  refresh: string;
+  access: string;
+}
