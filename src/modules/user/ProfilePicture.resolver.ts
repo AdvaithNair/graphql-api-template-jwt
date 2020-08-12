@@ -8,8 +8,6 @@ import { GCP_STORAGE } from "../../secrets";
 //import { ERROR_MESSAGES } from "../../constants";
 //import User from "../../entities/User";
 
-
-
 /*const getFilename = async (UserID: number, filename: string): Promise<string> => {
   // Returns Null if User Does Not Exist
   if (!UserID) throw new Error(ERROR_MESSAGES.UNAUTHORIZED);
@@ -26,7 +24,9 @@ import { GCP_STORAGE } from "../../secrets";
 export default class ProfilePictureResolver {
   // Uploads Profile Picture to Server (Locally)
   // NOTE: When Testing, remove Context
-  @Mutation(() => Boolean)
+  @Mutation(() => Boolean, {
+    description: "Uploads Profile Picture to Local Server"
+  })
   async addProfilePictureLocal(
     @Arg("picture", () => GraphQLUpload)
     { filename, createReadStream }: UploadImage //, @Ctx() context: MyContext)
@@ -53,7 +53,9 @@ export default class ProfilePictureResolver {
   }
 
   // Uploads Profile Picture to Google Cloud Storage Bucket
-  @Mutation(() => Boolean)
+  @Mutation(() => Boolean, {
+    description: "Uploads Profile Picture to Google Cloud Storage Bucket"
+  })
   async addProfilePictureGCP(
     @Arg("picture", () => GraphQLUpload)
     { filename, createReadStream }: UploadImage //@Ctx() context: MyContext

@@ -5,7 +5,7 @@ import { MyContext } from "../../types";
 @Resolver()
 export default class LogoutResolver {
   // Logs Out User
-  @Mutation(() => Boolean)
+  @Mutation(() => Boolean, { description: "Logs Out User from Session" })
   async logout(@Ctx() context: MyContext): Promise<boolean> {
     // Destroys Session on Server
     return new Promise((resolve, reject) =>
