@@ -1,5 +1,5 @@
 import { SESSION_SECRET, FRONTEND_URL } from "./secrets";
-import {PORT, SESSION_AGE} from "./constants";
+import { PORT, SESSION_AGE } from "./constants";
 import { ApolloServer } from "apollo-server-express";
 import express from "express";
 import { createConnection } from "typeorm";
@@ -9,7 +9,7 @@ import redis from "./redis";
 import cors from "cors";
 import "reflect-metadata";
 import { graphqlUploadExpress } from "graphql-upload";
-import passport from './passport';
+import passport from "./passport";
 import auth from "./routes/auth";
 import createSchema from "./utils/CreateSchema";
 
@@ -53,6 +53,9 @@ const main = async () => {
       }
     })
   );
+
+  // Redirect Root to GraphQL
+  app.get("/", (_req, res) => res.redirect("/graphql"));
 
   // OAuth Routes
   app.use("/auth", auth);

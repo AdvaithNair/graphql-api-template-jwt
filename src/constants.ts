@@ -1,5 +1,5 @@
 // Localhost Port Number
-export const PORT: number = 4000;
+export const PORT: number = 5000;
 
 // Project Name
 export const PROJECT_NAME: string = "GraphQL Template";
