@@ -1,4 +1,4 @@
-import { Resolver, Query, Ctx, UseMiddleware } from "type-graphql";
+import { Resolver, Query, Ctx, UseMiddleware, Mutation } from "type-graphql";
 import User from "../../entities/User";
 import isAuth from "../middleware/isAuth";
 import { MyContext } from "../../types";
@@ -28,5 +28,18 @@ export default class UserResolver {
 
     // Returns the User
     return User.findOne(UserID);
+  }
+
+  @Mutation(() => Boolean, { description: "Invalidates Access Token" })
+  async invalidateTokens(@Ctx() context: MyContext): Promise<Boolean> {
+    // Find User
+    const user = await User.findOne((context as any).req.userID);
+    if (!user) throw new Error(ERROR_MESSAGES.USER);
+
+    // Update Count on Database
+    user.count += 1;
+    await user.save();
+
+    return true;
   }
 }

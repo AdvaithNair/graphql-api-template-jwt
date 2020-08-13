@@ -20,6 +20,7 @@ const validateTokenMiddleware = async (
     ? req.headers["x-access-token"]!.toString()
     : undefined;
 
+
   // If no tokens, proceed
   if (!accessToken && !refreshToken) return next();
 
@@ -32,7 +33,7 @@ const validateTokenMiddleware = async (
     } catch (error) {
       // TODO: This could be deleted
       if ((error.name = "TokenExpiredError")) {
-        console.log("New Token!");
+        console.log("New Token!!!");
       }
     }
   }
@@ -50,7 +51,9 @@ const validateTokenMiddleware = async (
 
   // Validate Count Checking
   const user = await User.findOne(refreshData.userID);
-  if (!user || user.count !== refreshData.count) return next();
+  if (!user || user.count !== refreshData.count) {
+      return next();
+  }
 
   // Provide New Tokens
   const newTokens: AuthTokens = createTokens(user.id, user.role, user.count);
@@ -65,6 +68,9 @@ const validateTokenMiddleware = async (
     "x-access-token": newTokens.access,
     "x-refresh-token": newTokens.refresh
   });
+
+  // Set UserID
+  (req as any).userID = user.id;
 
   next();
 };
