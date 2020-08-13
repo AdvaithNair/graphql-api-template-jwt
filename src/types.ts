@@ -39,3 +39,15 @@ export interface AuthTokens {
   refresh: string;
   access: string;
 }
+
+// Access Token
+export interface AccessToken {
+  userID: number;
+  role: string;
+}
+
+// Refresh Token
+export interface RefreshToken {
+  userID: number;
+  count: number;
+}

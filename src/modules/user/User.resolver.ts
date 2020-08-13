@@ -21,7 +21,7 @@ export default class UserResolver {
   })
   async getOwnUser(@Ctx() context: MyContext): Promise<User | undefined> {
     // UserID
-    const UserID: number = context.req.session!.userId;
+    const UserID: number = (context as any).req!.userID;
 
     // Throw Error if User Does Not Exist
     if (!UserID) throw new Error(ERROR_MESSAGES.USER);

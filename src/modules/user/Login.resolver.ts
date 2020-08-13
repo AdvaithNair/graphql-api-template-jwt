@@ -1,10 +1,11 @@
-import { Resolver, Mutation, Arg, Ctx } from "type-graphql";
 import bcrypt from "bcryptjs";
-import { sign } from "jsonwebtoken";
-import User from "../../entities/User";
-import { MyContext, AuthTokens } from "../../types";
+import { Arg, Ctx, Mutation, Resolver } from "type-graphql";
 import { ERROR_MESSAGES } from "../../constants";
-import { JWT_SECRETS, REFRESH_EXP, ACCESS_EXP } from "../../secrets";
+import Tokens from "../../entities/Tokens";
+import User from "../../entities/User";
+import { ACCESS_EXP, REFRESH_EXP } from "../../secrets";
+import { AuthTokens, MyContext } from "../../types";
+import { createTokens } from "../../utils/Token";
 
 // Code to validate a user, given a password and the context (for cookie management)
 const validateUser = async (
@@ -26,27 +27,8 @@ const validateUser = async (
   // Throws Error if Email Not Confirmed
   if (!user.confirmed) throw new Error(ERROR_MESSAGES.NOT_CONFIRMED);
 
-  // Creates New Tokens
-  const refreshToken: string = sign(
-    { userID: user.id, count: user.count },
-    JWT_SECRETS.REFRESH,
-    {
-      expiresIn: JWT_SECRETS.REFRESH_EXP
-    }
-  );
-  const accessToken: string = sign(
-    { userID: user.id, role: user.role },
-    JWT_SECRETS.ACCESS,
-    {
-      expiresIn: JWT_SECRETS.ACCESS_EXP
-    }
-  );
-
   // Sets Cookie
-  return {
-    refresh: refreshToken,
-    access: accessToken
-  };
+  return createTokens(user.id, user.role, user.count);
 };
 
 // Handles Web Login
@@ -101,5 +83,31 @@ export default class LoginResolver {
     const user = await User.findOne({ where: { username } });
 
     return handleWeb(user, password, context);
+  }
+
+  // Logs In User with Email on Mobile
+  @Mutation(() => Tokens, {
+    description: "Logs In User With Email on Mobile",
+    nullable: true
+  })
+  async loginEmailMobile(
+    @Arg("email") email: string,
+    @Arg("password") password: string,
+    @Ctx() context: MyContext
+  ): Promise<Tokens | undefined> {
+    // Finds User from User Table
+    const user = await User.findOne({ where: { email } });
+
+    const tokens: AuthTokens = await validateUser(user, password);
+
+    // context.req.headers["Authorization"] = `Bearer ${tokens.access}`;
+    // context.req.set("Authorization", `Bearer ${tokens.access}`);
+    context.res.set({
+      "Access-Control-Expose-Headers": "x-access-token,x-refresh-token",
+      "x-access-token": tokens.access,
+      "x-refresh-token": tokens.refresh
+    });
+
+    return tokens;
   }
 }

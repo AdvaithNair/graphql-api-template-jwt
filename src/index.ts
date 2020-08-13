@@ -1,14 +1,18 @@
-import { FRONTEND_URL } from "./secrets";
-import { PORT } from "./constants";
 import { ApolloServer } from "apollo-server-express";
-import express from "express";
-import { createConnection } from "typeorm";
+import cookieParser from "cookie-parser";
 import cors from "cors";
-import "reflect-metadata";
+import express from "express";
 import { graphqlUploadExpress } from "graphql-upload";
+import "reflect-metadata";
+import { createConnection } from "typeorm";
+import { PORT } from "./constants";
 import passport from "./passport";
 import auth from "./routes/auth";
+import { FRONTEND_URL } from "./secrets";
 import createSchema from "./utils/CreateSchema";
+import validateTokenMiddleware from "./utils/TokenMiddleware";
+
+const device = require('express-device');
 
 const main = async () => {
   // Connect to DB
@@ -26,6 +30,15 @@ const main = async () => {
 
   // Create Express Instance
   const app = express();
+
+  // Device Capture Code
+  app.use(device.capture());
+
+  // Cookie Parsing Middleware
+  app.use(cookieParser());
+
+  // Custom User Middleware
+  app.use(validateTokenMiddleware);
 
   // Passport Middleware
   app.use(passport.initialize());

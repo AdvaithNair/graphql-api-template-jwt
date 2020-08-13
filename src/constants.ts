@@ -17,7 +17,7 @@ export enum REDIS_PREFIXES {
 // Error Messages
 export enum ERROR_MESSAGES {
   GENERAL = "Error",
-  UNAUTHORIZED = 'Unauthorized.',
+  UNAUTHORIZED = "Unauthorized.",
   USER = "Invalid Credentials",
   OAUTH = "Please Sign In With Listed Provider",
   NOT_CONFIRMED = "Email Not Confirmed",
@@ -28,7 +28,7 @@ export enum ERROR_MESSAGES {
 
 // User Roles
 export enum USER_ROLES {
-  OWNER,
-  ADMIN,
-  USER
+  OWNER = "owner",
+  ADMIN = "admin",
+  USER = "user"
 }
