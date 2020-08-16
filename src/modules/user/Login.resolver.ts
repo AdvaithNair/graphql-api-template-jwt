@@ -103,9 +103,9 @@ export default class LoginResolver {
     // context.req.headers["Authorization"] = `Bearer ${tokens.access}`;
     // context.req.set("Authorization", `Bearer ${tokens.access}`);
     context.res.set({
-      "Access-Control-Expose-Headers": "x-access-token,x-refresh-token",
-      "x-access-token": tokens.access,
-      "x-refresh-token": tokens.refresh
+      "Access-Control-Expose-Headers": "accessToken,refreshToken",
+      accessToken: tokens.access,
+      refreshToken: tokens.refresh
     });
 
     return tokens;

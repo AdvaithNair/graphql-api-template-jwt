@@ -14,6 +14,13 @@ export default class UserResolver {
     return "Hello World";
   }
 
+  @Query(() => String, {
+    description: "Basic Hello World Query"
+  })
+  async helloWorld() {
+    return "Hello World";
+  }
+
   // Gets Own User Info
   @Query(() => User, {
     description: "Gets Own User Information",

@@ -8,7 +8,7 @@ import { createConnection } from "typeorm";
 import { PORT } from "./constants";
 import passport from "./passport";
 import auth from "./routes/auth";
-import { FRONTEND_URL } from "./secrets";
+import { CORS_URLS } from "./secrets";
 import createSchema from "./utils/CreateSchema";
 import validateTokenMiddleware from "./utils/TokenMiddleware";
 
@@ -56,7 +56,7 @@ const main = async () => {
   app.use(
     cors({
       credentials: true,
-      origin: FRONTEND_URL
+      origin: CORS_URLS
     })
   );
 
@@ -64,7 +64,7 @@ const main = async () => {
   app.use(express.static("images"));
 
   // Applies Apollo Server Middleware to Express App
-  apolloServer.applyMiddleware({ app });
+  apolloServer.applyMiddleware({ app, cors: false });
 
   // Create Server
   app.listen(PORT, () =>

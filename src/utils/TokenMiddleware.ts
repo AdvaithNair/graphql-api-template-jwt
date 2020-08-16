@@ -11,13 +11,13 @@ const validateTokenMiddleware = async (
   // Get Tokens from Cookies or Headers
   const refreshToken: string | undefined = req.cookies["refresh-token"]
     ? req.cookies["refresh-token"]
-    : req.headers["x-refresh-token"]
-    ? req.headers["x-refresh-token"]!.toString()
+    : req.headers["refreshToken"]
+    ? req.headers["refreshToken"]!.toString()
     : undefined;
   const accessToken: string | undefined = req.cookies["access-token"]
     ? req.cookies["access-token"]
-    : req.headers["x-access-token"]
-    ? req.headers["x-access-token"]!.toString()
+    : req.headers["accessToken"]
+    ? req.headers["accessToken"]!.toString()
     : undefined;
 
 
@@ -64,9 +64,9 @@ const validateTokenMiddleware = async (
 
   // Sets Headers
   res.set({
-    "Access-Control-Expose-Headers": "x-access-token,x-refresh-token",
-    "x-access-token": newTokens.access,
-    "x-refresh-token": newTokens.refresh
+    "Access-Control-Expose-Headers": "accessToken,refreshToken",
+    "accessToken": newTokens.access,
+    "refreshToken": newTokens.refresh
   });
 
   // Set UserID
