@@ -1,6 +1,6 @@
 import bcrypt from "bcryptjs";
 import { Arg, Ctx, Mutation, Resolver } from "type-graphql";
-import { ERROR_MESSAGES } from "../../constants";
+import { ERROR_MESSAGES, TOKEN_NAMES } from "../../constants";
 import Tokens from "../../entities/Tokens";
 import User from "../../entities/User";
 import { ACCESS_EXP, REFRESH_EXP } from "../../secrets";
@@ -28,7 +28,7 @@ const validateUser = async (
   if (!user.confirmed) throw new Error(ERROR_MESSAGES.NOT_CONFIRMED);
 
   // Sets Cookie
-  return createTokens(user.id, user.role, user.count);
+  return createTokens(user);
 };
 
 // Handles Web Login
@@ -39,11 +39,11 @@ const handleWeb = async (
 ): Promise<User | undefined> => {
   const tokens: AuthTokens = await validateUser(user, password);
 
-  context.res.cookie("refresh-token", tokens.refresh, {
+  context.res.cookie(TOKEN_NAMES.REFRESH, tokens.refresh, {
     expires: REFRESH_EXP,
     httpOnly: true
   });
-  context.res.cookie("access-token", tokens.access, {
+  context.res.cookie(TOKEN_NAMES.ACCESS, tokens.access, {
     expires: ACCESS_EXP,
     httpOnly: true
   });
@@ -103,9 +103,9 @@ export default class LoginResolver {
     // context.req.headers["Authorization"] = `Bearer ${tokens.access}`;
     // context.req.set("Authorization", `Bearer ${tokens.access}`);
     context.res.set({
-      "Access-Control-Expose-Headers": "accessToken,refreshToken",
-      accessToken: tokens.access,
-      refreshToken: tokens.refresh
+      "Access-Control-Expose-Headers": `${TOKEN_NAMES.REFRESH},${TOKEN_NAMES.ACCESS}`,
+      refreshToken: tokens.refresh,
+      accessToken: tokens.access
     });
 
     return tokens;

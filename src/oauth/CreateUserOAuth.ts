@@ -1,6 +1,7 @@
 import User from "../entities/User";
 import { v4 } from "uuid";
-import { Request } from "express";
+import { Response } from "express";
+import { setTokens } from "../utils/Token";
 
 export const createFacebookUser = async (_req: Request, profile: any): Promise<number> => {
   const profilePicture: string = `http://graph.facebook.com/${profile.id}/picture?type=large`;
@@ -21,7 +22,7 @@ export const createFacebookUser = async (_req: Request, profile: any): Promise<n
   return user.id;
 };
 
-export const createGoogleUser = async (_req: Request, profile: any): Promise<number> => {
+export const createGoogleUser = async (res: Response, profile: any): Promise<number> => {
   // Enters User into Table if it Doesn't Exist
   let user = await User.findOne({ email: profile._json.email });
   if (!user) {
@@ -33,6 +34,8 @@ export const createGoogleUser = async (_req: Request, profile: any): Promise<num
       confirmed: true
     }).save();
   }
+
+  setTokens(res, user);
   
   // Returns UserID
   return user.id;

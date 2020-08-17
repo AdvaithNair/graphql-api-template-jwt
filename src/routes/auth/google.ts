@@ -16,8 +16,8 @@ google.get(
 // Google OAuth Callback Redirect
 google.get("/callback", (req, res, next) => {
   passport.authenticate("google", async (_err, user, _info) => {
-    req.session!.userId = await createGoogleUser(req, user);
-    res.redirect("/graphql");
+    (req as any).userID = await createGoogleUser(res, user);
+    res.redirect("http://localhost:3000/");
   })(req, res, next);
 });
 

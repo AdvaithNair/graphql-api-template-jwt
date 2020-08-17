@@ -32,3 +32,9 @@ export enum USER_ROLES {
   ADMIN = "admin",
   USER = "user"
 }
+
+// Token Names
+export enum TOKEN_NAMES {
+  REFRESH = "refreshToken",
+  ACCESS = "accessToken"
+}

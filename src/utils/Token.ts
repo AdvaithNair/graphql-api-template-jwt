@@ -1,6 +1,9 @@
 import { sign, verify } from "jsonwebtoken";
-import { JWT_SECRETS } from "../secrets";
-import { AuthTokens } from "src/types";
+import { JWT_SECRETS, REFRESH_EXP, ACCESS_EXP } from "../secrets";
+import { AuthTokens } from "../types";
+import { Response } from "express";
+import User from "../entities/User";
+import { TOKEN_NAMES } from "../constants";
 
 export const createRefreshToken = (userID: number, count: number): string => {
   return sign({ userID, count }, JWT_SECRETS.REFRESH, {
@@ -14,7 +17,7 @@ export const createAccessToken = (userID: number, role: string): string => {
   });
 };
 
-export const createTokens = (
+export const createTokensCustom = (
   userID: number,
   role: string,
   count: number
@@ -23,6 +26,30 @@ export const createTokens = (
   const access = createAccessToken(userID, role);
 
   return { refresh, access };
+};
+
+export const createTokens = (user: User): AuthTokens => {
+  const refresh = createRefreshToken(user.id, user.count);
+  const access = createAccessToken(user.id, user.role);
+
+  return { refresh, access };
+};
+
+export const setTokens = (res: Response, user: User) => {
+  const tokens: AuthTokens = createTokens(user);
+  res.cookie(TOKEN_NAMES.REFRESH, tokens.refresh, {
+    expires: REFRESH_EXP,
+    httpOnly: true
+  });
+  res.cookie(TOKEN_NAMES.ACCESS, tokens.access, {
+    expires: ACCESS_EXP,
+    httpOnly: true
+  });
+  res.set({
+    "Access-Control-Expose-Headers": `${TOKEN_NAMES.REFRESH},${TOKEN_NAMES.ACCESS}`,
+    refreshToken: tokens.refresh,
+    accessToken: tokens.access
+  });
 };
 
 export const verifyAccess = (accessToken: string) => {

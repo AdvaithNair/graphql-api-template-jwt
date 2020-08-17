@@ -12,7 +12,7 @@ import { CORS_URLS } from "./secrets";
 import createSchema from "./utils/CreateSchema";
 import validateTokenMiddleware from "./utils/TokenMiddleware";
 
-const device = require('express-device');
+const device = require("express-device");
 
 const main = async () => {
   // Connect to DB
@@ -34,6 +34,14 @@ const main = async () => {
   // Device Capture Code
   app.use(device.capture());
 
+  // Applies CORS to Express App
+  app.use(
+    cors({
+      credentials: true,
+      origin: CORS_URLS
+    })
+  );
+
   // Cookie Parsing Middleware
   app.use(cookieParser());
 
@@ -51,14 +59,6 @@ const main = async () => {
 
   // Applies GraphQL Upload Middleware to App
   app.use(graphqlUploadExpress({ maxFileSize: 10000000, maxFiles: 10 }));
-
-  // Applies CORS to Express App
-  app.use(
-    cors({
-      credentials: true,
-      origin: CORS_URLS
-    })
-  );
 
   // Allows Local Images to be Accessed
   app.use(express.static("images"));
