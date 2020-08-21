@@ -3,7 +3,7 @@ import { v4 } from "uuid";
 import { Response } from "express";
 import { setTokens } from "../utils/Token";
 
-export const createFacebookUser = async (_req: Request, profile: any): Promise<number> => {
+export const createFacebookUser = async (res: Response, profile: any): Promise<number> => {
   const profilePicture: string = `http://graph.facebook.com/${profile.id}/picture?type=large`;
 
   // Enters User into Table if it Doesn't Exist
@@ -17,6 +17,8 @@ export const createFacebookUser = async (_req: Request, profile: any): Promise<n
       confirmed: true
     }).save();
   }
+
+  setTokens(res, user);
   
   // Returns UserID
   return user.id;

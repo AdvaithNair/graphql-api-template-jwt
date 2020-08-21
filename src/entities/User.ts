@@ -19,6 +19,10 @@ export default class User extends BaseEntity {
   email: string;
 
   @Field()
+  @Column("text", { default: "" })
+  birthday: string;
+
+  @Field()
   @Column("text", { default: USER_ROLES.USER })
   role: string;
 
@@ -31,7 +35,6 @@ export default class User extends BaseEntity {
 
   @Column("bool", { default: false })
   confirmed: boolean;
-
 
   @Column("int", { default: 0 })
   count: number;

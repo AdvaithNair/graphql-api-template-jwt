@@ -7,6 +7,7 @@ import createLimitedURL from "../utils/CreateLimitedURL";
 import redis from "../../redis";
 import { EmailType } from "../../types";
 import { REDIS_PREFIXES, ERROR_MESSAGES } from "../../constants";
+import { BCRYPT_SALT } from "../../secrets";
 
 @Resolver()
 export default class RegisterResolver {
@@ -16,16 +17,18 @@ export default class RegisterResolver {
   {
     email,
     password,
-    username
+    username,
+    birthday
   }: RegisterInput): Promise<User> {
     // Hashes Password for Entry in User Table
-    const hashedPassword: string = await bcrypt.hash(password, 12);
+    const hashedPassword: string = await bcrypt.hash(password, BCRYPT_SALT);
 
     // Enters User into Table
     const user = await User.create({
       email,
       password: hashedPassword,
-      username
+      username,
+      birthday
     }).save();
 
     // Creates Confirmation URL
@@ -47,16 +50,18 @@ export default class RegisterResolver {
   {
     email,
     password,
-    username
+    username,
+    birthday
   }: RegisterInput): Promise<User> {
     // Hashes Password for Entry in User Table
-    const hashedPassword: string = await bcrypt.hash(password, 12);
+    const hashedPassword: string = await bcrypt.hash(password, BCRYPT_SALT);
 
     // Enters User into Table
     const user = await User.create({
       email,
       password: hashedPassword,
       username,
+      birthday,
       confirmed: true
     }).save();
 

@@ -14,7 +14,7 @@ facebook.get(
 // Facebook OAuth Callback Redirect
 facebook.get("/callback", (req, res, next) => {
   passport.authenticate("facebook", async (_err, user, _info) => {
-    req.session!.userId = await createFacebookUser(req, user);
+    (req as any).userID = await createFacebookUser(res, user);
     res.redirect("/graphql");
   })(req, res, next);
 });

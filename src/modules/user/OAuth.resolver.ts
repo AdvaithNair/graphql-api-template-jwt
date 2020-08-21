@@ -5,10 +5,12 @@ import User from "../../entities/User";
 import { MyContext } from "../../types";
 import bcrypt from 'bcryptjs';
 import { ERROR_MESSAGES } from "../../constants";
+import { BCRYPT_SALT } from "../../secrets";
 
 
 @Resolver()
 export default class UserResolver {
+  @Mutation(() => User, { description: "Adds Account Password for OAuth Users" })
   @Mutation(() => User, { description: "Adds Account Password for OAuth Users" })
   async addPassword(
     @Arg("password") password: string,
@@ -24,7 +26,7 @@ export default class UserResolver {
     if (user.password) throw new Error(ERROR_MESSAGES.PASSWORD_EXISTS);
 
     // Hashes Password
-    const hashedPassword: string = await bcrypt.hash(password, 12);
+    const hashedPassword: string = await bcrypt.hash(password, BCRYPT_SALT);
 
     // Saves New Password
     user.password = hashedPassword;

@@ -7,6 +7,7 @@ import redis from "../../redis";
 import { MyContext, EmailType } from "../../types";
 import { REDIS_PREFIXES, ERROR_MESSAGES } from "../../constants";
 import ChangePasswordInput from "./input/ChangePasswordInput";
+import { BCRYPT_SALT } from "../../secrets";
 
 @Resolver()
 export default class PasswordResolver {
@@ -56,7 +57,7 @@ export default class PasswordResolver {
     if (isSame) throw new Error(ERROR_MESSAGES.NEW_PASSWORD_IS_SAME);
 
     // Updates Password
-    const hashedPassword: string = await bcrypt.hash(password, 12); // Without Frontend
+    const hashedPassword: string = await bcrypt.hash(password, BCRYPT_SALT); // Without Frontend
     // const hashedPassword: string = password; // With Frontend (Uncomment)
 
     await User.update(

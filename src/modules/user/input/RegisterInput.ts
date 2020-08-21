@@ -18,6 +18,9 @@ export default class RegisterInput {
   email: string;
 
   @Field()
+  birthday: string;
+
+  @Field()
   @MinLength(6, { message: "Weak Password" })
   password: string;
 }
